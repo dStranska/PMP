@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "878377016936",
+    "firebase_url": "https://nakupni-kosik.firebaseio.com",
+    "project_id": "nakupni-kosik",
+    "storage_bucket": "nakupni-kosik.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878377016936:android:e383fc37fb78747ecce5dd",
+        "android_client_info": {
+          "package_name": "com.example.nakupni_kosik"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878377016936-7ltqq2fl2cpsj61c8rr0ceqvavs7jvof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUWcZjxzxdkZNOYlCHp6tLjs9shOHmTDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878377016936-7ltqq2fl2cpsj61c8rr0ceqvavs7jvof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
