@@ -1,0 +1,2 @@
+rootProject.name='PMP_2'
+include ':app'

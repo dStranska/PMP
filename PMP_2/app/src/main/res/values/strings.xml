@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">PMP_2</string>
+
+    <string name="ks_text">ks</string>
+    <string name="g_text">g</string>
+    <string name="kg_text">kg</string>
+    <string name="ml_text">ml</string>
+    <string name="l_text">l</string>
+</resources>
