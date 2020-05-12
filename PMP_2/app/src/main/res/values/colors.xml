@@ -4,5 +4,7 @@
     <color name="colorPrimaryDark">#B4B4B5</color>
     <color name="colorAccent">#4C1606</color>
     <color name="mainText">#FF9800</color>
+    <color name="successBorder">#158E00</color>
+    <color name="successBackground">#4075F147</color>
 
 </resources>
