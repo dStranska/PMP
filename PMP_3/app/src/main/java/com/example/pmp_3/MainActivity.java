@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.text.PrecomputedText;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -18,6 +14,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -26,10 +23,7 @@ import android.widget.TextView;
 import android.app.AlertDialog;
 import android.widget.EditText;
 import android.content.DialogInterface;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,126 +36,185 @@ public class MainActivity extends AppCompatActivity {
     public int listPosition;
     static boolean[] tickMarkVisibileListPosition=new boolean[20];
 
+    MyCustomAdapter dataAdapter=null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
-        shoppingList = getArrayVal(getApplicationContext());
-        Collections.sort(shoppingList);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, shoppingList) {
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        displaylistView();
 
-                View view = super.getView(position, convertView, parent);
-                if (position %2 == 1){
-                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
-                }
-                else{
-                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-                }
-                return view;
-            }
-        };
-        lv = (ListView) findViewById(R.id.listView);
+
+//        shoppingList = getArrayVal(getApplicationContext());
+//        Collections.sort(shoppingList);
+//        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, shoppingList) {
+//            @NonNull
+//            @Override
+//            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+//
+//                View view = super.getView(position, convertView, parent);
+//                if (position %2 == 1){
+//                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+//                }
+//                else{
+//                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+//                }
+//                return view;
+//            }
+//        };
+//        lv = (ListView) findViewById(R.id.listView);
+//        lv.setAdapter(adapter);
+
+
+//        lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+//            public void onItemClick(AdapterView parent, View view, int position, long id) {
+//                listPosition = position - lv.getFirstVisiblePosition();
+//
+//
+//                if (lv.getChildAt(listPosition).findViewById(R.id.tick_mark).getVisibility() == View.INVISIBLE)
+//                {
+//                    lv.getChildAt(listPosition).findViewById(R.id.tick_mark).setVisibility(View.VISIBLE);
+//                    tickMarkVisibileListPosition[position]=Boolean.TRUE;
+//                }
+//                else
+//                {
+//                    lv.getChildAt(listPosition).findViewById(R.id.tick_mark).setVisibility(View.INVISIBLE);
+//                    tickMarkVisibileListPosition[position]=Boolean.FALSE;
+//                }
+//                lv.getChildAt(listPosition).setSelected(true);
+//            }
+//        });
+        //CustomAdapterListview adapter=new CustomAdapterListview(MainActivity.this,lv);
+//        lv.setAdapter(adapter);
+//
+//        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                String selectedItem = ((TextView) view).getText().toString();
+//                if (selectedItem.trim().equals(shoppingList.get(position).trim())) {
+//                    removedElement(selectedItem, position);
+//                }
+//                else {
+//                    Toast.makeText(getApplicationContext(), "Chyba při odstranění", Toast.LENGTH_LONG).show();
+//                }
+//                return true;
+//            }
+//        });
+
+    }
+    private void displaylistView() {
+        ArrayList<Item> itemList = new ArrayList<Item>();
+        Item item1 = new Item("name_1", 56.5, false);
+        Item item2 = new Item("name_1", 56.5, false);
+        Item item3 = new Item("name_1", 56.5, false);
+        Item item4 = new Item("name_1", 56.5, false);
+        Item item5 = new Item("name_1", 56.5, false);
+        itemList.add(item1);
+        itemList.add(item2);
+        itemList.add(item3);
+        itemList.add(item4);
+        itemList.add(item5);
+
+        //create arrayAdapter from string array
+        adapter = new MyCustomAdapter(this, android.R.layout.simple_list_item_1, itemList);
+        ListView lv = (ListView) findViewById(R.id.listView);
         lv.setAdapter(adapter);
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            public void onItemClick(AdapterView parent, View view, int position, long id) {
-                listPosition = position - lv.getFirstVisiblePosition();
-                if (lv.getChildAt(listPosition).findViewById(R.id.tick_mark).getVisibility() == View.INVISIBLE)
-                {
-                    lv.getChildAt(listPosition).findViewById(R.id.tick_mark).setVisibility(View.VISIBLE);
-                    tickMarkVisibileListPosition[position]=Boolean.TRUE;
-                }
-                else
-                {
-                    lv.getChildAt(listPosition).findViewById(R.id.tick_mark).setVisibility(View.INVISIBLE);
-                    tickMarkVisibileListPosition[position]=Boolean.FALSE;
-                }
-                lv.getChildAt(listPosition).setSelected(true);
-            }
-        });
-        //CustomAdapterListview adapter=new CustomAdapterListview(MainActivity.this,lv);
-        lv.setAdapter(adapter);
-
-        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = ((TextView) view).getText().toString();
-                if (selectedItem.trim().equals(shoppingList.get(position).trim())) {
-                    removedElement(selectedItem, position);
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), "Chyba při odstranění", Toast.LENGTH_LONG).show();
-                }
-                return true;
+            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                Item item = (Item) parent.getItemAtPosition(position);
+                Toast.makeText(getApplicationContext(),"cicked on row"+item.getName(),Toast.LENGTH_SHORT);
             }
         });
 
+
+
+    }
+    private class MyCustomAdapter extends ArrayAdapter<Item>
+    {
+        private ArrayList<Item> itemList;
+
+        public MyCustomAdapter(Context context, int textviewResourceid,ArrayList<Item>itemList){
+            super(context, textviewResourceid, itemList);
+            this.itemList=new ArrayList<Item>();
+            this.itemList.addAll(itemList);
+
+        }
     }
 
-    public class CustomAdapterListview extends BaseAdapter {
-        private String[] itemValues;
-        private LayoutInflater inflater;
-        public ViewHolder holder=null;
-        CustomAdapterListview(Context context,String[] values)
-        {
-            // this.tcontext=context;  
-            this.itemValues=values;
-            this.inflater=LayoutInflater.from(context);
-        }
-        public int getCount() {
-            return itemValues.length;
-        }
-        @Override
-        public Object getItem(int position)
-        {
-            return position;
-        }
-        @Override
-        public long getItemId(int position)
-        {
-            return 0;
-        }
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent)
-        {
-            if(convertView==null)
-            {
-                convertView=inflater.inflate(R.layout.layout_for_listview,null);
-                holder=new ViewHolder();
-                holder.tickMark=(ImageView) convertView.findViewById(R.id.tick_mark);
-                holder.itemListView= (ListView) convertView.findViewById(R.id.listView);
-                convertView.setTag(holder);
-            }
-            else
-            {
-                holder=(ViewHolder)convertView.getTag();
-            }
-            holder.itemDataView.setText(itemValues[position]);
-            if(MainActivity.tickMarkVisibileListPosition[position]==Boolean.TRUE)
-                /*Everytime adapter check whether the imageview at particular position have to be made visible or not.
-                 */
-            {
-                holder.tickMark.setVisibility(View.VISIBLE);
-            }
-            else
-            {
-                holder.tickMark.setVisibility(View.INVISIBLE);
-            }
-            return convertView;
-        }
-        class ViewHolder
-        {
-            public ListView itemListView;
-            TextView itemDataView;
-            ImageView tickMark;
-        }
+    private class ViewHolder{
+        TextView code;
+        CheckBox name;
     }
+
+
+
+
+
+
+
+//    public class CustomAdapterListview extends BaseAdapter {
+//        private String[] itemValues;
+//        private LayoutInflater inflater;
+//        public ViewHolder holder=null;
+//        CustomAdapterListview(Context context,String[] values)
+//        {
+//            // this.tcontext=context;
+//            this.itemValues=values;
+//            this.inflater=LayoutInflater.from(context);
+//        }
+//        public int getCount() {
+//            return itemValues.length;
+//        }
+//        @Override
+//        public Object getItem(int position)
+//        {
+//            return position;
+//        }
+//        @Override
+//        public long getItemId(int position)
+//        {
+//            return 0;
+//        }
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent)
+//        {
+//            if(convertView==null)
+//            {
+//                convertView=inflater.inflate(R.layout.layout_for_listview,null);
+//                holder=new ViewHolder();
+//                holder.tickMark=(ImageView) convertView.findViewById(R.id.tick_mark);
+//                holder.itemListView= (ListView) convertView.findViewById(R.id.listView);
+//                convertView.setTag(holder);
+//            }
+//            else
+//            {
+//                holder=(ViewHolder)convertView.getTag();
+//            }
+//            holder.itemDataView.setText(itemValues[position]);
+//            if(MainActivity.tickMarkVisibileListPosition[position]==Boolean.TRUE)
+//                /*Everytime adapter check whether the imageview at particular position have to be made visible or not.
+//                 */
+//            {
+//                holder.tickMark.setVisibility(View.VISIBLE);
+//            }
+//            else
+//            {
+//                holder.tickMark.setVisibility(View.INVISIBLE);
+//            }
+//            return convertView;
+//        }
+//        class ViewHolder
+//        {
+//            public ListView itemListView;
+//            TextView itemDataView;
+//            ImageView tickMark;
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -187,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_add) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Add Item");
+            builder.setTitle("Add com.example.pmp_3.Item");
             final EditText input = new EditText(this);
             builder.setView(input);
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {

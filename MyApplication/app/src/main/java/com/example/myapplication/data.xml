@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<items>
+    <item>
+        <name>Mleko</name>
+        <price>55.2</price>
+        <selected>false</selected>
+    </item>
+    <item>
+        <name>Mleko2</name>
+        <price>55.2</price>
+        <selected>false</selected>
+    </item>
+    <item>
+        <name>Mleko3</name>
+        <price>55.2</price>
+        <selected>false</selected>
+    </item>
+    <item>
+        <name>Mleko4</name>
+        <price>55.2</price>
+        <selected>false</selected>
+    </item>
+    <item>
+        <name>Mleko5</name>
+        <price>55.2</price>
+        <selected>false</selected>
+    </item>
+
+
+</items>
