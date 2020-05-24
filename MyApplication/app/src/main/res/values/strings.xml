@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">SHOP LIST</string>
+    <string name="app_name_done">SHOP LIST - done</string>
+    <string name="app_name_edit">SHOP LIST - edit</string>
 
     <string-array name="fruits">
 

@@ -3,9 +3,13 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.text.InputType;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,20 +18,24 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
+    DatabaseHelper mDatabaseHelper;
+
+
     private ListView listView;
     private ListViewAdapter adapter;
-    private List<ShopItem> shopItemsActive = new ArrayList<>();
-    private ArrayList<ShopItem> shopItemsDone = new ArrayList<>();
+    private List<ShopItem> items = new ArrayList<>();
     public static List<ShopItem> UserSelection = new ArrayList<>();
 
     public static boolean isActionMode = false;
@@ -38,44 +46,58 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getItems();
+
+        mDatabaseHelper = new DatabaseHelper(this);
+        // mDatabaseHelper.initTable();
+
         listView = findViewById(R.id.mListView);
 
         listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         listView.setMultiChoiceModeListener(modeListener);
-
-        adapter = new ListViewAdapter(shopItemsActive, shopItemsDone, this);
+        getData();
+        adapter = new ListViewAdapter(items, this);
         listView.setAdapter(adapter);
 
         Button buttonDone = findViewById(R.id.button_done);
 
+
         buttonDone.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(shopItemsDone.size()!=0) {
-                    Intent intent = new Intent(MainActivity.this, DoneActivity.class);
-                    intent.putExtra("list", shopItemsDone);
-                    startActivity(intent);
 
-                }else{
-                    Toast.makeText(getApplicationContext(), "There is no checked item", Toast.LENGTH_LONG).show();
-
-                }
-
-
-
+                Intent intent = new Intent(MainActivity.this, DoneActivity.class);
+                startActivity(intent);
             }
         });
     }
 
-    ///Data z xml
-    private void getItems() {
-        String[] items = getResources().getStringArray(R.array.fruits);
-
-        for (String item : items) {
-            ShopItem shopItem = new ShopItem(item, 23.1);
-            shopItemsActive.add(shopItem);
+    public void getData() {
+        items.clear();
+        Cursor data = mDatabaseHelper.getData();
+        while (data.moveToNext()) {
+            ShopItem item = new ShopItem(data.getInt(0), data.getString(1), data.getDouble(3), (data.getInt(2) == 1 ? true : false));
+            items.add(item);
         }
     }
+
+    public void addItem(String text, Double price) {
+        boolean insertData = mDatabaseHelper.addData(text, price);
+        if (insertData) {
+            toastMessage("Object was successfully added");
+        } else {
+            toastMessage("Something went wrong");
+        }
+        getData();
+        listView.setAdapter(adapter);
+    }
+
+    public void seletectDone(ShopItem item) {
+        boolean done = mDatabaseHelper.done(item.getId());
+    }
+
+    public void toastMessage(String text) {
+        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+    }
+
     //Menu add
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -92,14 +115,25 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_add) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Add new item");
+
+            LinearLayout layout = new LinearLayout(this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+
             final EditText input = new EditText(this);
-            builder.setView(input);
+            input.setHint("Name");
+            final EditText input_price = new EditText(this);
+            input_price.setHint("Price");
+            input_price.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL); //for decimal numbers
+
+            layout.addView(input);
+            layout.addView(input_price);
+
+            builder.setView(layout);
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ShopItem shopItem= new ShopItem(input.getText().toString(),55.5);
-                    shopItemsActive.add(shopItem);
-                    listView.setAdapter(adapter);
+                    addItem(input.getText().toString(), Double.valueOf(input_price.getText().toString()));
+
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -118,7 +152,9 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("Ano", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    adapter.removeItems(shopItemsActive);
+
+                    mDatabaseHelper.deleteAll();
+                    getData();
                     listView.setAdapter(adapter);
                 }
             });
@@ -134,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
 
     ///Menu up
@@ -164,25 +199,30 @@ public class MainActivity extends AppCompatActivity {
             if (UserSelection.size() > 0) {
                 switch (item.getItemId()) {
                     case (R.id.action_delete):
-                        adapter.removeItems(UserSelection);
-                        Toast.makeText(getApplicationContext(), "Deleted: " + MainActivity.UserSelection.size() + " items", Toast.LENGTH_LONG).show();
+                        for (ShopItem shopItem : UserSelection) {
+                            mDatabaseHelper.deleteById(shopItem.getId());
+                        }
+                        getData();
+                        listView.setAdapter(adapter);
+                        toastMessage("Deleted: " + MainActivity.UserSelection.size() + " items");
                         mode.finish();
                         return true;
                     case (R.id.action_done):
-                        adapter.doneItems(UserSelection);
-                        for(ShopItem shopItem : UserSelection){
-                            shopItemsDone.add(shopItem);
-                        }
-                        adapter.removeItems(UserSelection);
 
-                        Toast.makeText(getApplicationContext(), "Checked " + MainActivity.UserSelection.size() + " new items", Toast.LENGTH_LONG).show();
+                        for (ShopItem shopItem : UserSelection) {
+                            seletectDone(shopItem);
+                        }
+                        getData();
+                        listView.setAdapter(adapter);
+                        toastMessage("Checked: " + MainActivity.UserSelection.size() + " items");
+
                         mode.finish();
                         return true;
                     default:
                         return false;
                 }
             } else {
-                Toast.makeText(getApplicationContext(), "You must select min 1 item", Toast.LENGTH_LONG).show();
+                toastMessage("You must select min 1 item");
 
             }
             return true;
@@ -195,4 +235,10 @@ public class MainActivity extends AppCompatActivity {
             actionMode = null;
         }
     };
+
+    public void openEdit(){
+        toastMessage("edit");
+    }
+
+
 }

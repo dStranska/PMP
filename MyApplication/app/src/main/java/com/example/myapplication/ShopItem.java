@@ -2,15 +2,18 @@ package com.example.myapplication;
 
 import java.io.Serializable;
 
-public class ShopItem implements Serializable {
+
+public class ShopItem implements Serializable{
+    private Integer id = null;
     private String name = null;
     private Double price = null;
     private Boolean selected = null;
 
-    public ShopItem(String name, Double price) {
+    public ShopItem(int id,String name, Double price,Boolean selected) {
+        this.id=id;
         this.name = name;
         this.price = price;
-        this.selected = false;
+        this.selected = selected;
     }
 
     public String getName() {
@@ -37,4 +40,11 @@ public class ShopItem implements Serializable {
         this.selected = selected;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }
